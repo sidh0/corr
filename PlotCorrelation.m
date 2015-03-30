@@ -5,7 +5,7 @@ function PlotCorrelation()
     % Update matrix to onnly include the ces we 
     % want to plot
     for j = 1:length(Cells);
-        this =Cells(j);
+        this = Cells(j);
         [ces,idx] = intersect(this.ces,plotCes);
         
         Cells(j).meanMatrix = this.meanMatrix(:,idx);
@@ -124,7 +124,7 @@ function populate_plot(Cells,myFig,varargin)
         
         for c = 1:length(ces);
             current = meanMatrix(:,c);
-            [r,m,b] = regression(correlated',current');
+            [r,m,b] = regression2(current,correlated);
             rs(c) = r;
             ms(c) = m;
         end
