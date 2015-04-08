@@ -66,7 +66,13 @@ function correlation_callback(myFig,evt)
         tcFig = figure();
         setappdata(myFig,'tcFig',tcFig);
     else
-        tcFig = appdata.tcFig;
+        if ishandle(appdata.tcFig);
+            tcFig = appdata.tcFig;
+        else
+            tcFig = figure();
+            setappdata(myFig,'tcFig',tcFig);
+        end
+        
     end
     
     set(tcFig,'color','white');
