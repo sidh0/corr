@@ -18,10 +18,12 @@ function PlotCorrelation()
     myFig = figure();
     
     setappdata(myFig,'plotCes',plotCes);
+    setappdata(myFig,'colors',rand([3,100]));
     
     populate_plot(Cells,myFig);
     
     setappdata(myFig,'currentCell',1)
+    
     set(gcf,'Color','White','WindowKeyPressFcn',@correlation_callback)
 end
 
@@ -100,6 +102,7 @@ function populate_plot(Cells,myFig,varargin)
     end
     
     getappdata(myFig,'plotCes');
+    cols = getappdata(myFig,'colors');
     
     
     nCells = length(Cells);
@@ -111,6 +114,8 @@ function populate_plot(Cells,myFig,varargin)
     
     figData.Rs = []; figData.Ms = []; 
     figData.Ces = []; figData.IDs = [];
+
+    lemCount = 0; jbeCount = 0;
     
     for j = 1:nCells;
         this =Cells(j);
@@ -137,22 +142,45 @@ function populate_plot(Cells,myFig,varargin)
         
         lw = (j == currentCell)*3 + 2;
         
-        subplot(1,2,1); hold on;
-        plot(ces,rs, '-- o', 'linewidth',lw,'markersize',lw*2);
-        
-        subplot(1,2,2); hold on;
-        plot(ces,ms,'-- o','linewidth',lw,'markersize',lw*2);
+        if j~=currentCell
+            subplot(1,2,1); hold on;
+            plot(ces,rs, '-- o', 'linewidth',lw,'markersize',lw*2, 'color',cols(:,j));
+
+            subplot(1,2,2); hold on;
+            plot(ces,ms,'-- o','linewidth',lw,'markersize',lw*2,'color',cols(:,j));
+        else
+            main_ces = ces; main_rs = rs; main_ms = ms; main_col = cols(:,j);
+        end
+
+        lemCount = lemCount+strcmp(Cells(j).filename(9:11),'lem');
+        jbeCount = jbeCount+strcmp(Cells(j).filename(9:11),'jbe');
     end
+
+    % Finally plot the last line so that we get it on top
+    subplot(1,2,1);
+    plot(main_ces,main_rs, '-- o', 'linewidth',5,'markersize',10, 'color',main_col);
+
+    subplot(1,2,2);
+    plot(main_ces,main_ms,'-- o','linewidth',5,'markersize',10,'color',main_col);
+
     
     subplot(1,2,1);
     set(gca,'fontsize',20);
     xlabel('Binocular correlation','fontsize',24);
     ylabel('Correlation coefficient','fontsize',24);
+    plot([-1,1],[-1,1],'k -','linewidth',2);
+    plot([-1,1],[0,0],'k -','linewidth',2);
     
     subplot(1,2,2);
     set(gca,'fontsize',20);
     xlabel('Binocular correlation','fontsize',24);
     ylabel('Regression slope','fontsize',24);
+    plot([-1,1],[-1,1],'k -','linewidth',2);
+    plot([-1,1],[0,0],'k -','linewidth',2);
+
+
+    text(0.5,-0.5,sprintf('lem: %i cells',lemCount));
+    text(0.5,-0.6,sprintf('jbe: %i cells',jbeCount));
     
     setappdata(gcf,'figData',figData);
     setappdata(gcf,'Cells',Cells);
